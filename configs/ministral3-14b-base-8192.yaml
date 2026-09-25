@@ -1,0 +1,57 @@
+# Recipe for continued-pretraining LoRA on mistralai/Ministral-3-14B-Base-2512.
+#
+# Verified model facts (from config.json in the model repo):
+#   architectures      Mistral3ForConditionalGeneration
+#   text_config        40 layers, hidden 5120, 32 Q / 8 KV heads, FFN 16384
+#   vocab_size         131072          tokenizer: tekken
+#   max_position_emb.  262144
+#   original_max_pos.  16384  (YaRN factor 16)
+#   BOS 1  EOS 2  image_token_index 10  pad 11
+#
+# 8192 sits comfortably inside the 16384 native window, so no RoPE scaling
+# change is needed when training at this length.
+
+run_name: ministral3-14b-base-8192
+
+model:
+  hf_repo: mistralai/Ministral-3-14B-Base-2512
+  variant: base
+
+budget:
+  max_seq_len: 8192
+  reserved_boundary_tokens: 2        # [BOS] + [EOS]
+  content_budget: 8190               # derived
+  block_separator: "\n\n"
+
+chunking:
+  include_chapter_headings: true     # chapter title stays with its content
+  include_scene_headings: true
+  repeat_chapter_title: false        # no duplicated heading text
+  min_chunk_tokens: 0                # strict rules win by default
+  merge_across_chapters: false
+  oversize_scene_policy: split       # cut only at paragraph boundaries, and log it
+
+sources:
+  # Excluded from training per the project brief.
+  exclude_patterns:
+    - "wings of fire*"
+    - "*wings of fire*"
+    - "onyx"
+    - "onyx*"
+  drop_repeated_headings: true
+  strip_page_numbers: false
+  aggressive_breaks: false
+  numbered_breaks: false
+
+splits:
+  strategy: book                     # whole books held out; no leakage
+  val_fraction: 0.10
+
+review_gates:
+  oversize_warn_fraction: 0.005
+  oversize_stop_fraction: 0.02
+
+outputs:
+  chunks_jsonl: true
+  emit_tokenized: true               # input_ids.npy + offsets.npy with boundaries
+  emit_hf_dataset: false

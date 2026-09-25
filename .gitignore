@@ -1,0 +1,41 @@
+# ---- Data (never commit books or derived datasets) ----
+data/*
+!data/.gitkeep
+*.epub
+*.mobi
+*.azw3
+*.docx
+*.pdf
+*.safetensors
+
+# tokenizer blobs
+tekken.json
+tokenizer.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# ---- Tooling ----
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---- Editors / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- Run artifacts ----
+runs/
+*.log
