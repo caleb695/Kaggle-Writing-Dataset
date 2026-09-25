@@ -300,33 +300,55 @@ _HEADING_HINT_CLASSES = ("chapter", "title", "heading", "heading1", "chapter-tit
 
 
 def _with_br(html_text: str) -> str:
-    """Convert ``<br>`` runs to newlines before tag stripping."""
-    html_text = re.sub(r"(?i)<br\s*/?>", "\n", html_text)
-    return html_text
+    """Mark ``<br>`` before parsing so malformed tags still split.
+
+    Uses a sentinel rather than a newline: pretty-printed XHTML also contains
+    newlines inside ``<p>`` (soft wraps), and those must not become paragraph
+    boundaries.
+    """
+    return re.sub(r"(?i)<br\s*/?>", _BR_SENTINEL, html_text)
 
 
 def _text_of(node) -> str:
     """Visible text of a node, with inline markup resolved away."""
     try:
-        return clean_inline(node.get_text(" "))
+        return clean_inline(node.get_text(" ").replace("\r", " ").replace("\n", " "))
     except Exception:  # pragma: no cover - defensive
         return ""
 
 
-def _leaf_pieces(node) -> list[str]:
-    """Split a leaf block's text on ``<br>`` boundaries.
+#: Private-use sentinel so ``<br>`` splits survive ``get_text`` joining.
+_BR_SENTINEL = "\ue000"
 
-    ``<br>`` is replaced with a literal newline *inside the tree* and then
-    ``get_text`` is used, so inline tags (``<em>``, ``<span>``, ...) contribute
-    their text and never leak markup into the corpus.
+#: Class tokens that mean "this paragraph is a chapter title", even without
+#: an ``<h1>``. Common in older EPUB conversions (``ChapNo``, ``Chapter``).
+_CHAPTER_CLASS_TOKENS = {
+    "chapter", "chapno", "chap-no", "chaptitle", "chaptertitle",
+    "chapter-title", "chapter-number", "chapternumber", "chapterhead",
+    "chapter-head", "chaptername", "chapter-name", "chapternum",
+}
+
+
+def _leaf_pieces(node) -> list[str]:
+    """Split a leaf block's text on ``<br>`` boundaries only.
+
+    Soft line-wraps inside a ``<p>`` -- pretty-printed XHTML with a newline
+    every ~60 characters -- are not paragraph boundaries and must be
+    collapsed to spaces. Honouring them as splits turned one Fablehaven
+    omnibus into 51k one-line "paragraphs". ``<br>`` is the only hard break.
     """
     try:
         for br in node.find_all("br"):
-            br.replace_with("\n")
-        raw = node.get_text()
+            br.replace_with(_BR_SENTINEL)
+        raw = node.get_text(" ")
     except Exception:  # pragma: no cover - defensive
         return []
-    return [clean_inline(part) for part in raw.split("\n")]
+    pieces: list[str] = []
+    for part in raw.split(_BR_SENTINEL):
+        collapsed = clean_inline(part.replace("\r", " ").replace("\n", " "))
+        if collapsed:
+            pieces.append(collapsed)
+    return pieces
 
 
 def _class_id_blob(node) -> str:
@@ -494,6 +516,22 @@ def _iter_blocks(node, origin: str, doc_level: int) -> Iterator[Block]:
                 yield Block(BLOCK_SCENE_BREAK, "", origin=origin)
                 continue
 
+            # Class-tagged chapter titles (``<p class="Chapter">``, ``ChapNo``)
+            # are headings even when they don't match "Chapter N".
+            classes = child.get("class") or []
+            if isinstance(classes, str):
+                classes = classes.split()
+            class_tokens = {c.lower() for c in classes}
+            if (
+                lname == "p"
+                and class_tokens & _CHAPTER_CLASS_TOKENS
+                and txt
+                and len(txt) <= 90
+                and any(ch.isalnum() for ch in txt)
+            ):
+                yield Block(BLOCK_HEADING, clean_heading(txt), level=1, origin=origin)
+                continue
+
             # Appearance-based heading: a short centred / large-font line with
             # no semantic tag (typical of MOBI conversions).
             if not _has_block_child(child):
@@ -644,6 +682,11 @@ def _read_epub_documents(path: Path):
                         if tag.get_text(strip=True):
                             meta["creator"] = tag.get_text(strip=True)
                             break
+                    for tag in _find_all_local(opf, "description"):
+                        blob = tag.get_text(" ", strip=True)
+                        if blob:
+                            meta["description"] = clean_inline(blob)[:2000]
+                            break
 
                     by_id: dict[str, tuple[str, str, str]] = {}
                     for item in _find_all_local(opf, "item"):
@@ -699,24 +742,350 @@ def _read_epub_documents(path: Path):
     return meta, documents
 
 
-def extract_epub(path: Path) -> ExtractedDoc:
-    """Parse an EPUB in spine order into blocks."""
-    meta, documents = _read_epub_documents(path)
-
+def _epub_documents_to_blocks(documents: list[tuple[str, str]]) -> list[Block]:
     blocks: list[Block] = []
     for name, content in documents:
         blob = name.lower()
         if any(h in blob for h in _SKIP_EPUB_HINTS):
             continue
         blocks.extend(html_to_blocks(content, f"epub:{name}"))
+    return blocks
 
+
+def extract_epub(path: Path) -> ExtractedDoc:
+    """Parse an EPUB in spine order into a single document.
+
+    Multi-novel collections are split by :func:`extract_epub_collection` (used
+    by :func:`extract_file`); this helper stays one-doc so existing tests and
+    callers that want the raw concatenation still work.
+    """
+    meta, documents = _read_epub_documents(path)
+    blocks = _epub_documents_to_blocks(documents)
     title = meta.get("title") or path.stem
     return ExtractedDoc(path, blocks, {"title": title, **meta})
 
 
 # --------------------------------------------------------------------------- #
+# EPUB omnibus splitting
+# --------------------------------------------------------------------------- #
+
+_OMNIBUS_HINT = regex.compile(
+    r"\b(trilogy|omnibus|boxed[\s-]?set|complete series|complete collection|"
+    r"e-?book boxed|boxed e-?book)\b",
+    regex.IGNORECASE,
+)
+_BOOK_NAV_RE = regex.compile(
+    r"^\s*(?:book|volume|tome)\s+"
+    r"(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+    r"i{1,3}|iv|v|vi{0,3}|ix|\d{1,2})\b",
+    regex.IGNORECASE,
+)
+_ISBN13_RE = regex.compile(r"(97[89]\d{10})")
+_FURNITURE_NAV_LABELS = {
+    "cover", "copyright", "contents", "table of contents", "title page",
+    "dedication", "acknowledgements", "acknowledgments", "about the author",
+    "about", "also by", "colophon", "title",
+}
+
+
+def _is_furniture_nav_label(label: str) -> bool:
+    s = (label or "").strip().lower()
+    if not s or s in _FURNITURE_NAV_LABELS:
+        return True
+    if s.startswith("about "):
+        return True
+    return False
+
+
+def _read_epub_ncx(path: Path) -> tuple[Optional[str], list[tuple[str, str, int, str]]]:
+    """Return ``(docTitle, [(label, src, n_children, first_child_label), ...])`` from the NCX.
+
+    Only *top-level* navPoints are returned. Nested chapter entries are
+    counted so we can tell a novel (many children) from a furniture leaf.
+    """
+    import zipfile
+    from bs4 import BeautifulSoup
+
+    try:
+        with zipfile.ZipFile(path) as zf:
+            ncx_name = next((n for n in zf.namelist() if n.lower().endswith(".ncx")), None)
+            if not ncx_name:
+                return None, []
+            soup = BeautifulSoup(zf.read(ncx_name), "lxml-xml")
+    except Exception:
+        return None, []
+
+    doc_title = None
+    for tag in soup.find_all(True):
+        if _local(tag).lower() == "doctitle":
+            text = tag.get_text(" ", strip=True)
+            if text:
+                doc_title = clean_heading(text)
+                break
+
+    navmap = None
+    for tag in soup.find_all(True):
+        if _local(tag).lower() == "navmap":
+            navmap = tag
+            break
+    if navmap is None:
+        return doc_title, []
+
+    roots: list[tuple[str, str, int, str]] = []
+    for child in getattr(navmap, "children", []):
+        if _local(child).lower() != "navpoint":
+            continue
+        label = ""
+        src = ""
+        n_kids = 0
+        first_child_label = ""
+        for sub in child.find_all(True, recursive=False):
+            lname = _local(sub).lower()
+            if lname == "navlabel" and not label:
+                label = sub.get_text(" ", strip=True)
+            elif lname == "content" and not src:
+                src = (sub.get("src") or "").split("#")[0]
+            elif lname == "navpoint":
+                n_kids += 1
+                if not first_child_label:
+                    nested_label = sub.find("text")
+                    if nested_label is not None:
+                        first_child_label = nested_label.get_text(" ", strip=True)
+        if not label:
+            text_tag = child.find("text")
+            if text_tag is not None:
+                label = text_tag.get_text(" ", strip=True)
+        if not src:
+            content_tag = child.find("content")
+            if content_tag is not None:
+                src = (content_tag.get("src") or "").split("#")[0]
+        roots.append((label, src, n_kids, first_child_label))
+    return doc_title, roots
+
+
+def _doc_index_for_src(documents: list[tuple[str, str]], src: str) -> Optional[int]:
+    import posixpath
+
+    if not src:
+        return None
+    src = src.split("#")[0]
+    base = posixpath.basename(src)
+    for i, (name, _) in enumerate(documents):
+        if name == src or name.endswith("/" + src) or posixpath.basename(name) == base:
+            return i
+        # NCX src is often relative to the OPF folder ("xhtml/ch.html")
+        # while the zip name includes the folder ("ops/xhtml/ch.html").
+        if name.endswith("/" + src.lstrip("./")):
+            return i
+    return None
+
+
+def _isbn_novel_groups(
+    documents: list[tuple[str, str]],
+    ncx_roots: list[tuple[str, str, int, str]],
+) -> Optional[list[tuple[str, list[tuple[str, str]]]]]:
+    """Cluster spine documents by a 13-digit ISBN in the filename.
+
+    Boxed-set EPUBs (Beyonders) ship three novels whose files are named
+    ``9781416997986_ch01.html``, ``9781416997993_ch01.html``, ...
+    """
+    groups: dict[str, list[tuple[str, str]]] = {}
+    order: list[str] = []
+    for item in documents:
+        m = _ISBN13_RE.search(item[0])
+        if not m:
+            continue
+        isbn = m.group(1)
+        if isbn not in groups:
+            groups[isbn] = []
+            order.append(isbn)
+        groups[isbn].append(item)
+    if len(order) < 2:
+        return None
+    if any(len(groups[i]) < 3 for i in order):
+        return None
+
+    # Prefer the NCX entry with the most nested children so an "About the
+    # author" leaf that happens to live under the last book's ISBN does not
+    # overwrite the novel title (Beyonders: Chasing the Prophecy vs author bio).
+    best: dict[str, tuple[int, str]] = {}
+    for label, src, n_kids, _first in ncx_roots:
+        m = _ISBN13_RE.search(src or "")
+        if not m or _is_furniture_nav_label(label):
+            continue
+        isbn = m.group(1)
+        prev = best.get(isbn)
+        if prev is None or n_kids > prev[0]:
+            best[isbn] = (n_kids, clean_heading(label))
+
+    return [(best[i][1] if i in best else i, groups[i]) for i in order]
+
+
+def _ncx_novel_groups(
+    documents: list[tuple[str, str]],
+    ncx_roots: list[tuple[str, str, int, str]],
+    *,
+    require_book_label: bool,
+) -> Optional[list[tuple[str, list[tuple[str, str]]]]]:
+    """Slice the spine at top-level NCX entries that look like novels."""
+    candidates: list[tuple[str, str, int, str]] = []
+    for label, src, n_kids, first_child in ncx_roots:
+        if n_kids < 5:
+            continue
+        if _is_furniture_nav_label(label):
+            continue
+        if require_book_label and not _BOOK_NAV_RE.match(label or ""):
+            continue
+        candidates.append((label, src, n_kids, first_child))
+    if len(candidates) < 2:
+        return None
+
+    starts: list[tuple[str, int]] = []
+    for label, src, _n, first_child in candidates:
+        idx = _doc_index_for_src(documents, src)
+        if idx is None:
+            continue
+        # "BOOK ONE" / first nested "Fablehaven" -> use the nested title.
+        title = label
+        if _BOOK_NAV_RE.match(label or "") and first_child and not _BOOK_NAV_RE.match(first_child):
+            title = first_child
+        starts.append((clean_heading(title) or f"Book {len(starts) + 1}", idx))
+    if len(starts) < 2:
+        return None
+
+    starts.sort(key=lambda x: x[1])
+    # Drop duplicate indexes (two labels pointing at the same file).
+    dedup: list[tuple[str, int]] = []
+    seen: set[int] = set()
+    for title, idx in starts:
+        if idx in seen:
+            continue
+        seen.add(idx)
+        dedup.append((title, idx))
+    if len(dedup) < 2:
+        return None
+
+    groups: list[tuple[str, list[tuple[str, str]]]] = []
+    for i, (title, idx) in enumerate(dedup):
+        start = 0 if i == 0 else idx
+        end = dedup[i + 1][1] if i + 1 < len(dedup) else len(documents)
+        if end <= start:
+            continue
+        groups.append((title, documents[start:end]))
+    return groups if len(groups) >= 2 else None
+
+
+def _epub_novel_groups(
+    path: Path,
+    meta: dict,
+    documents: list[tuple[str, str]],
+) -> Optional[list[tuple[str, list[tuple[str, str]]]]]:
+    """Detect a multi-novel EPUB and return ``[(title, documents), ...]``.
+
+    Conservative on purpose: a false split would shatter a single novel into
+    several "books". We only cut when at least one of these is true:
+
+    * spine filenames cluster by two or more ISBN-13 prefixes;
+    * the NCX has two or more top-level ``BOOK ONE`` / ``VOLUME 2`` entries;
+    * the collection title/description says trilogy/omnibus/complete series
+      *and* the NCX has two or more nested novel-sized roots.
+    """
+    ncx_title, ncx_roots = _read_epub_ncx(path)
+    blob = " ".join(
+        s for s in (ncx_title, meta.get("title"), meta.get("description")) if s
+    )
+    omnibus_hint = bool(_OMNIBUS_HINT.search(blob))
+
+    isbn_groups = _isbn_novel_groups(documents, ncx_roots)
+    if isbn_groups:
+        return isbn_groups
+
+    labeled = _ncx_novel_groups(documents, ncx_roots, require_book_label=True)
+    if labeled:
+        return labeled
+
+    if omnibus_hint:
+        nested = _ncx_novel_groups(documents, ncx_roots, require_book_label=False)
+        if nested:
+            return nested
+    return None
+
+
+def extract_epub_collection(path: Path, split_omnibus: bool = True) -> list[ExtractedDoc]:
+    """Parse an EPUB, splitting a boxed-set/omnibus into one document per novel."""
+    meta, documents = _read_epub_documents(path)
+    collection = meta.get("title") or path.stem
+
+    groups = _epub_novel_groups(path, meta, documents) if split_omnibus else None
+    if not groups:
+        blocks = _epub_documents_to_blocks(documents)
+        return [ExtractedDoc(path, blocks, {"title": collection, **meta})]
+
+    docs: list[ExtractedDoc] = []
+    for i, (title, docs_slice) in enumerate(groups):
+        blocks = _epub_documents_to_blocks(docs_slice)
+        docs.append(
+            ExtractedDoc(
+                path,
+                blocks,
+                {
+                    **meta,
+                    "title": title or f"{collection} — book {i + 1}",
+                    "collection": collection,
+                    "part_index": i + 1,
+                    "part_count": len(groups),
+                },
+            )
+        )
+    return docs
+
+
+# --------------------------------------------------------------------------- #
 # MOBI / AZW  (Kindle)
 # --------------------------------------------------------------------------- #
+
+
+def _extract_kf8(path: Path, header, split_omnibus: bool = True) -> Optional[list[ExtractedDoc]]:
+    """KF8/AZW3 text lives in an EPUB container. Unpack, then reuse the EPUB path.
+
+    KindleUnpack's ``mobi.extract`` returns the path of that EPUB zip, not
+    HTML. Reading it as UTF-8 produced two garbage "paragraphs" for
+    ``The False Prince.azw3``.
+    """
+    import shutil
+
+    tempdir = None
+    try:
+        import mobi as mobi_pkg
+    except Exception:
+        return None
+    try:
+        tempdir, out = mobi_pkg.extract(str(path))
+        out_path = Path(out)
+        if not out_path.is_file():
+            return None
+        head = out_path.read_bytes()[:4]
+        if out_path.suffix.lower() == ".epub" or head == b"PK\x03\x04":
+            docs = extract_epub_collection(out_path, split_omnibus=split_omnibus)
+            collection = header.full_name or (header.exth or {}).get(503) or path.stem
+            for doc in docs:
+                doc.source_path = path
+                meta = dict(doc.metadata or {})
+                if header.exth:
+                    meta.setdefault("author", header.exth.get(100))
+                    meta.setdefault("publisher", header.exth.get(101))
+                meta["mobi_version"] = header.mobi_version
+                meta.setdefault("collection", collection)
+                if not meta.get("title"):
+                    meta["title"] = collection
+                doc.metadata = {k: v for k, v in meta.items() if v is not None}
+            return docs
+        return None
+    except Exception:
+        return None
+    finally:
+        if tempdir:
+            shutil.rmtree(tempdir, ignore_errors=True)
 
 
 def extract_mobi(path: Path, split_omnibus: bool = True) -> list[ExtractedDoc]:
@@ -734,10 +1103,28 @@ def extract_mobi(path: Path, split_omnibus: bool = True) -> list[ExtractedDoc]:
     from .mobi import (
         MobiError,
         novel_starts,
+        parse_header,
         read_html_text,
         read_raw_text,
         segment_by_offsets,
     )
+
+    try:
+        header = parse_header(path)
+    except MobiError:
+        raise
+    except Exception as exc:  # pragma: no cover - defensive
+        raise MobiError(f"{path.name}: could not read MOBI data ({type(exc).__name__}: {exc})")
+
+    if header.is_kf8:
+        docs = _extract_kf8(path, header, split_omnibus=split_omnibus)
+        if docs:
+            return docs
+        raise MobiError(
+            f"{path.name}: MOBI version {header.mobi_version} is KF8/AZW3, whose text "
+            "lives in a different container. Install the `mobi` package "
+            "(`pip install mobi`) to read it, or convert to EPUB in Calibre."
+        )
 
     try:
         html_text, header = read_html_text(path)
@@ -864,7 +1251,7 @@ def extract_file(
     """
     suffix = path.suffix.lower()
     if suffix == ".epub":
-        return [extract_epub(path)]
+        return extract_epub_collection(path, split_omnibus=split_omnibus)
     if suffix == ".docx":
         return [extract_docx(path)]
     if suffix in (".html", ".htm", ".xhtml"):

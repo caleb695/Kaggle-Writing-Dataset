@@ -653,22 +653,68 @@ def detect_omnibus(path: Path, **kwargs) -> Optional[list[TocEntry]]:
     return novel_starts(path, **kwargs)
 
 
+def _html_from_epub_zip(path: Path) -> Optional[str]:
+    """Concatenate spine-ish XHTML from an EPUB zip (KF8 unpack output)."""
+    import zipfile
+
+    try:
+        with zipfile.ZipFile(path) as zf:
+            names = [
+                n for n in zf.namelist()
+                if n.lower().endswith((".xhtml", ".html", ".htm", ".xml"))
+                and "meta-inf" not in n.lower()
+                and not n.lower().endswith((".opf", ".ncx"))
+            ]
+            names.sort()
+            parts: list[str] = []
+            for name in names:
+                lower = name.lower()
+                if any(h in lower for h in ("toc", "nav", "cover", "copyright")):
+                    continue
+                try:
+                    data = zf.read(name)
+                except Exception:
+                    continue
+                if data[:2] == b"PK":
+                    continue
+                text = data.decode("utf-8", errors="replace")
+                if "<p" in text.lower() or "<html" in text.lower() or "<body" in text.lower():
+                    parts.append(text)
+            return "\n".join(parts) if parts else None
+    except Exception:
+        return None
+
+
 def _kindleunpack_html(path: Path) -> Optional[str]:
-    """Run KindleUnpack and return the produced HTML, if it succeeds."""
+    """Run KindleUnpack and return the produced HTML, if it succeeds.
+
+    KF8 unpack writes an EPUB zip, not a ``.html`` file. Reading that zip as
+    UTF-8 used to return the PK header as "text".
+    """
+    import shutil
+
     try:
         import mobi
     except Exception:
         return None
 
+    tempdir = None
     try:
-        _tempdir, out = mobi.extract(str(path))
+        tempdir, out = mobi.extract(str(path))
     except Exception:
         return None
 
-    out_path = Path(out)
-    if not out_path.is_file():
-        return None
     try:
-        return out_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return None
+        out_path = Path(out)
+        if not out_path.is_file():
+            return None
+        head = out_path.read_bytes()[:4]
+        if out_path.suffix.lower() == ".epub" or head == b"PK\x03\x04":
+            return _html_from_epub_zip(out_path)
+        try:
+            return out_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return None
+    finally:
+        if tempdir:
+            shutil.rmtree(tempdir, ignore_errors=True)
