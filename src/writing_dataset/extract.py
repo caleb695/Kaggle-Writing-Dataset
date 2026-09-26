@@ -864,19 +864,26 @@ def _read_epub_ncx(path: Path) -> tuple[Optional[str], list[tuple[str, str, int,
 
 
 def _doc_index_for_src(documents: list[tuple[str, str]], src: str) -> Optional[int]:
+    """Locate a spine document for an NCX ``src``.
+
+    Basename-only matching is unsafe: a collection root ``titlepage.xhtml``
+    would steal ``3/titlepage.xhtml`` (Inheritance Cycle: Brisingr vanished
+    into Eldest). Prefer an exact or directory-qualified match; fall back to
+    basename only when ``src`` itself has no directory component.
+    """
     import posixpath
 
     if not src:
         return None
-    src = src.split("#")[0]
-    base = posixpath.basename(src)
+    src = src.split("#")[0].lstrip("./")
     for i, (name, _) in enumerate(documents):
-        if name == src or name.endswith("/" + src) or posixpath.basename(name) == base:
+        if name == src or name.endswith("/" + src):
             return i
-        # NCX src is often relative to the OPF folder ("xhtml/ch.html")
-        # while the zip name includes the folder ("ops/xhtml/ch.html").
-        if name.endswith("/" + src.lstrip("./")):
-            return i
+    if "/" not in src.replace("\\", "/"):
+        base = posixpath.basename(src)
+        for i, (name, _) in enumerate(documents):
+            if posixpath.basename(name) == base:
+                return i
     return None
 
 

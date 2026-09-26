@@ -16,6 +16,7 @@ import pytest
 from fixtures import make_corpus, write_epub
 
 from writing_dataset.extract import (
+    _doc_index_for_src,
     extract_epub,
     extract_epub_collection,
     extract_file,
@@ -348,3 +349,113 @@ def test_epub_omnibus_can_be_left_unsplit(tmp_path):
     paras = [b.text for b in docs[0].blocks if b.kind == "paragraph"]
     assert any(t.startswith("Alpha") for t in paras)
     assert any(t.startswith("Bravo") for t in paras)
+
+
+def test_doc_index_does_not_confuse_same_basename_in_other_folder():
+    """3/titlepage.xhtml must not resolve to the collection root titlepage.xhtml."""
+    documents = [
+        ("titlepage.xhtml", ""),
+        ("1/titlepage.xhtml", ""),
+        ("3/titlepage.xhtml", ""),
+        ("3/ch01.html", ""),
+    ]
+    assert _doc_index_for_src(documents, "3/titlepage.xhtml") == 2
+    assert _doc_index_for_src(documents, "1/titlepage.xhtml") == 1
+    assert _doc_index_for_src(documents, "titlepage.xhtml") == 0
+    assert _doc_index_for_src(documents, "ch01.html") == 3
+
+
+def _write_folder_omnibus(path):
+    """Calibre-style boxed set: 1/, 2/ folders each with their own titlepage.xhtml."""
+    import zipfile
+
+    files = []
+    for book, title, body_prefix in (
+        ("1", "Eragon", "Eragon prose"),
+        ("2", "Eldest", "Eldest prose"),
+    ):
+        files.append((
+            f"{book}/titlepage.xhtml",
+            f"{book}/titlepage.xhtml",
+            '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">'
+            f"<body><h1>{title}</h1></body></html>",
+        ))
+        for i in range(1, 7):
+            href = f"{book}/ch{i:02d}.html"
+            files.append((
+                href,
+                href,
+                '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">'
+                f"<body><p>{body_prefix} {i}.</p></body></html>",
+            ))
+
+    # Collection-level title page sharing the basename of each book's title page.
+    files.insert(0, (
+        "titlepage.xhtml",
+        "titlepage.xhtml",
+        '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml">'
+        "<body><h1>Complete Collection</h1></body></html>",
+    ))
+
+    manifest = "\n".join(
+        f'<item id="c{i}" href="{href}" media-type="application/xhtml+xml"/>'
+        for i, (_zip, href, _html) in enumerate(files)
+    )
+    spine = "".join(f'<itemref idref="c{i}"/>' for i in range(len(files)))
+    opf = (
+        '<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="2.0">'
+        '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">'
+        "<dc:title>The Inheritance Cycle Complete Collection</dc:title>"
+        "<dc:language>en</dc:language>"
+        "<dc:description>All four books in one complete collection.</dc:description>"
+        "</metadata>"
+        f"<manifest>{manifest}</manifest><spine>{spine}</spine></package>"
+    )
+
+    def navpoint(play, ident, label, src, kids_html=""):
+        return (
+            f'<navPoint playOrder="{play}" id="{ident}">'
+            f"<navLabel><text>{label}</text></navLabel>"
+            f'<content src="{src}"/>{kids_html}</navPoint>'
+        )
+
+    play = 1
+    ncx_parts = []
+    for book, title in (("1", "Eragon"), ("2", "Eldest")):
+        kids = "".join(
+            navpoint(play + j + 1, f"{book}c{j}", f"Ch {j}", f"{book}/ch{j + 1:02d}.html")
+            for j in range(6)
+        )
+        ncx_parts.append(navpoint(play, f"b{book}", title, f"{book}/titlepage.xhtml", kids))
+        play += 7
+    ncx = (
+        '<?xml version="1.0"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/">'
+        "<docTitle><text>The Inheritance Cycle Complete Collection</text></docTitle>"
+        f"<navMap>{''.join(ncx_parts)}</navMap></ncx>"
+    )
+    container = (
+        '<?xml version="1.0"?>'
+        '<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">'
+        '<rootfiles><rootfile full-path="content.opf" '
+        'media-type="application/oebps-package+xml"/></rootfiles></container>'
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("mimetype", "application/epub+zip")
+        zf.writestr("META-INF/container.xml", container)
+        zf.writestr("content.opf", opf)
+        zf.writestr("toc.ncx", ncx)
+        for zip_name, _href, html in files:
+            zf.writestr(zip_name, html)
+
+
+def test_folder_omnibus_does_not_swallow_the_next_novel(tmp_path):
+    path = tmp_path / "inheritance.epub"
+    _write_folder_omnibus(path)
+    docs = extract_epub_collection(path)
+    assert len(docs) == 2
+    assert [d.metadata["title"] for d in docs] == ["Eragon", "Eldest"]
+    a = [b.text for b in docs[0].blocks if b.kind == "paragraph"]
+    b = [b.text for b in docs[1].blocks if b.kind == "paragraph"]
+    assert a and all(t.startswith("Eragon") for t in a)
+    assert b and all(t.startswith("Eldest") for t in b)
