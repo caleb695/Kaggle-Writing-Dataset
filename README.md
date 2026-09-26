@@ -82,9 +82,10 @@ print(result.stats["dataset"]["training_tokens_including_boundaries"])
 
 ## Kaggle (GitHub URL → dataset → train 14B)
 
-Training-ready files live in [`kaggle_dataset/`](kaggle_dataset/) on this
-branch. Point Kaggle's GitHub dataset importer at **this branch**, not
-`main`. Then run [`notebooks/kaggle_train_ministral14b_cpt.py`](notebooks/kaggle_train_ministral14b_cpt.py)
+Training-ready files live in [`kaggle_dataset/`](kaggle_dataset/). Kaggle's
+GitHub importer reads **`main`**, so merge this branch first, then paste
+`https://github.com/caleb695/Kaggle-Writing-Dataset`. Then run
+[`notebooks/kaggle_train_ministral14b_cpt.py`](notebooks/kaggle_train_ministral14b_cpt.py)
 on a GPU T4 x2 notebook as 4-bit QLoRA continued pretraining.
 
 Step-by-step: **[KAGGLE.md](KAGGLE.md)**.

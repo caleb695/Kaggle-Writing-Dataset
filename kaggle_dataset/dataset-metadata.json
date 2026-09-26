@@ -7,7 +7,7 @@
     }
   ],
   "subtitle": "8192-token continued-pretraining chunks for Ministral-3-14B-Base-2512",
-  "description": "Boundary-respecting manuscript chunks packed to an 8192-token sequence budget (8190 content + BOS/EOS) for continued pretraining LoRA of mistralai/Ministral-3-14B-Base-2512.\n\nUse `input_ids.npy` + `train_offsets.npy` / `val_offsets.npy` to train without re-tokenizing. `train.jsonl` / `val.jsonl` hold the same splits as UTF-8 text.\n\nDo **not** point Kaggle's GitHub importer at the `main` branch — that branch is raw source files, not this training package. Import `kaggle_dataset/` from branch `arena/01a0d5fc-kaggle-writing-dataset`.\n\nSee KAGGLE.md in the repository for the exact create-dataset and training steps.",
+  "description": "Boundary-respecting manuscript chunks packed to an 8192-token sequence budget (8190 content + BOS/EOS) for continued pretraining LoRA of mistralai/Ministral-3-14B-Base-2512.\n\nUse `input_ids.npy` + `train_offsets.npy` / `val_offsets.npy` to train without re-tokenizing. `train.jsonl` / `val.jsonl` hold the same splits as UTF-8 text.\n\nKaggle's GitHub importer clones `main`. Merge the arena branch PR first so `main` contains this folder, not the raw manuscripts.\n\nSee KAGGLE.md in the repository for the exact create-dataset and training steps.",
   "keywords": [
     "nlp",
     "language modeling",

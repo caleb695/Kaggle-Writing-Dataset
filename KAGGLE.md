@@ -5,8 +5,10 @@ Two separate Kaggle objects:
 1. **Dataset** — the packed 8192-token chunks (`kaggle_dataset/` in this repo).
 2. **Notebook** — QLoRA continued pretraining of `Ministral-3-14B-Base-2512`.
 
-Do **not** point Kaggle at branch `main`. `main` is the raw manuscripts. The
-training package lives on `arena/01a0d5fc-kaggle-writing-dataset`.
+Kaggle's GitHub connector clones the repo **default branch** (`main`).
+Merge the PR from `arena/01a0d5fc-kaggle-writing-dataset` into `main` first,
+or the importer will get the raw `.epub` / `.mobi` uploads instead of
+`kaggle_dataset/`.
 
 ---
 
@@ -17,11 +19,8 @@ storage. It will not mix with local file uploads.
 
 ### Preferred: GitHub URL (what you asked for)
 
-1. On GitHub, set the default branch to
-   `arena/01a0d5fc-kaggle-writing-dataset`
-   (`Settings → General → Default branch`).
-   If you skip this, Kaggle will ingest `main` and you will get the raw
-   `.epub` / `.mobi` files instead of `input_ids.npy`.
+1. Merge the pull request from `arena/01a0d5fc-kaggle-writing-dataset` into
+   `main` (this session cannot push `main` for you).
 2. Make the repo **public** (Kaggle cannot clone a private repo this way).
 3. Kaggle → **Datasets → New Dataset**.
 4. Sidebar: **GitHub** icon.
