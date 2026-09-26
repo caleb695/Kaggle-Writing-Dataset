@@ -1,0 +1,35 @@
+# Optional grouping manifest.
+#
+# By default the builder maps ONE SOURCE FILE == ONE BOOK, because the training
+# rules forbid joining text from different books or unrelated source files.
+# Use this manifest only when a single book is genuinely split across several
+# files (e.g. one file per part). Every file listed for a book is concatenated
+# in the declared order, and no book is ever mixed with another.
+
+books:
+  - id: five_kingdoms_01
+    title: "Five Kingdoms: Sky Raiders"
+    series: "Five Kingdoms and Beyonders"
+    group: "five kingdoms and beyonders"
+    order: 1
+    sources:
+      - "five kingdoms and beyonders/Five Kingdoms 01.epub"
+
+  - id: five_kingdoms_02
+    title: "Five Kingdoms: Rogue Knight"
+    series: "Five Kingdoms and Beyonders"
+    group: "five kingdoms and beyonders"
+    order: 2
+    sources:
+      - "five kingdoms and beyonders/Five Kingdoms 02.epub"
+
+  # A book stored as several part-files -- the only case where several source
+  # files legitimately become one book.
+  - id: fablehaven_01
+    title: "Fablehaven"
+    series: "Fablehaven and Dragonwatch"
+    group: "fablehaven and dragonwatch"
+    order: 1
+    sources:
+      - "fablehaven and dragonwatch/Fablehaven 01 - part1.epub"
+      - "fablehaven and dragonwatch/Fablehaven 01 - part2.epub"

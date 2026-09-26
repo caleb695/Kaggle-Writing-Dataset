@@ -1,0 +1,12 @@
+# --- Core (required) ---
+mistral-common>=1.8.0      # authoritative Tekken tokenizer for Ministral 3 / Mistral
+beautifulsoup4>=4.12       # HTML/EPUB DOM walking
+lxml>=5.0                  # fast parser backend for BeautifulSoup
+python-docx>=1.1           # .docx sources (if you wrote in Word / Google Docs export)
+PyYAML>=6.0                # config files
+regex>=2023.0              # Unicode-aware fallback token proxy + text cleanup
+tqdm>=4.66                 # progress bars
+
+# --- Optional ---
+# datasets>=2.19           # only needed for `--emit-hf-dataset`
+# mobi>=0.3.3              # only needed for Kindle .mobi/.azw3 sources
