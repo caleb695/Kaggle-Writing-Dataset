@@ -651,6 +651,21 @@ def write_tokenized(result: BuildResult, out_dir: Path, cfg: BuildConfig) -> Non
     np.save(out_dir / "input_ids.npy", flat)
     np.save(out_dir / "offsets.npy", offsets)
 
+    # Split-specific offset tables so a trainer can mmap one token stream and
+    # iterate train / val without re-filtering JSONL.
+    train_ids = {c.chunk_id for c in result.train}
+    val_ids = {c.chunk_id for c in result.val}
+    train_rows = [offsets[i] for i, c in enumerate(result.chunks) if c.chunk_id in train_ids]
+    val_rows = [offsets[i] for i, c in enumerate(result.chunks) if c.chunk_id in val_ids]
+    np.save(
+        out_dir / "train_offsets.npy",
+        np.stack(train_rows) if train_rows else np.empty((0, 3), dtype=np.int64),
+    )
+    np.save(
+        out_dir / "val_offsets.npy",
+        np.stack(val_rows) if val_rows else np.empty((0, 3), dtype=np.int64),
+    )
+
     with (out_dir / "tokenized_index.jsonl").open("w", encoding="utf-8") as fh:
         for chunk, off in zip(result.chunks, offsets):
             fh.write(json.dumps({

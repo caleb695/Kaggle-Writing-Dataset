@@ -1,0 +1,15 @@
+{
+  "name": "tekken_240911 (bundled with mistral-common)",
+  "kind": "tekken-mistral-common",
+  "n_words": 131072,
+  "bos_id": 1,
+  "eos_id": 2,
+  "has_real_special_tokens": false,
+  "path": "/tmp/venv/lib/python3.11/site-packages/mistral_common/data/tekken_240911.json",
+  "sha256": "1948e2d48b0e7377f1bb5f1210f1ae5f984934e75713fc07e2452729b8365316",
+  "exact_for_ministral3_14b": false,
+  "caution": "Bundled Tekken has its special tokens stripped, so counts are a conservative UPPER BOUND vs the model's own tekken.json: a chunk verified at <= budget here also fits under the real tokenizer. Pass --tekken /path/to/tekken.json from the model snapshot for exact counts.",
+  "max_seq_len": 8192,
+  "reserved_boundary_tokens": 2,
+  "content_budget": 8190
+}

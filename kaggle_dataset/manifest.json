@@ -1,0 +1,24 @@
+{
+  "run_name": "ministral3-14b-base-8192",
+  "model": "mistralai/Ministral-3-14B-Base-2512",
+  "max_seq_len": 8192,
+  "bos_id": 1,
+  "eos_id": 2,
+  "pad_id": 11,
+  "files": {
+    "train.jsonl": 37332562,
+    "val.jsonl": 3730194,
+    "input_ids.npy": 36625080,
+    "offsets.npy": 36896,
+    "train_offsets.npy": 33680,
+    "val_offsets.npy": 3344,
+    "tokenized_index.jsonl": 301637,
+    "stats.json": 28373,
+    "tokenizer_info.json": 756,
+    "REPORT.md": 9139,
+    "oversize_blocks.jsonl": 81383
+  },
+  "train_chunks": 1398,
+  "val_chunks": 134,
+  "training_tokens": 9156238
+}

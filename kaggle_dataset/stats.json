@@ -1,0 +1,965 @@
+{
+  "run_name": "ministral3-14b-base-8192",
+  "generated_at_utc": "2026-09-26T17:52:54Z",
+  "model": {
+    "name": "Ministral-3-14B-Base-2512",
+    "hf_repo": "mistralai/Ministral-3-14B-Base-2512",
+    "vocab_size": 131072,
+    "tokenizer": "tekken"
+  },
+  "budget": {
+    "max_seq_len": 8192,
+    "reserved_boundary_tokens": 2,
+    "content_budget": 8190,
+    "layout": "[BOS] + content + [EOS]",
+    "block_separator": "'\\n\\n'"
+  },
+  "tokenizer": {
+    "name": "tekken_240911 (bundled with mistral-common)",
+    "kind": "tekken-mistral-common",
+    "n_words": 131072,
+    "bos_id": 1,
+    "eos_id": 2,
+    "has_real_special_tokens": false,
+    "path": "/tmp/venv/lib/python3.11/site-packages/mistral_common/data/tekken_240911.json",
+    "sha256": "1948e2d48b0e7377f1bb5f1210f1ae5f984934e75713fc07e2452729b8365316",
+    "exact_for_ministral3_14b": false,
+    "caution": "Bundled Tekken has its special tokens stripped, so counts are a conservative UPPER BOUND vs the model's own tekken.json: a chunk verified at <= budget here also fits under the real tokenizer. Pass --tekken /path/to/tekken.json from the model snapshot for exact counts.",
+    "max_seq_len": 8192,
+    "reserved_boundary_tokens": 2,
+    "content_budget": 8190
+  },
+  "corpus": {
+    "books_total": 60,
+    "books_included": 60,
+    "books_excluded": 0,
+    "chapters": 1891,
+    "scenes": 2935,
+    "paragraphs": 264922,
+    "words": 6740169
+  },
+  "dataset": {
+    "chunks": 1532,
+    "content_tokens": 9153174,
+    "boundary_tokens": 3064,
+    "training_tokens_including_boundaries": 9156238,
+    "chunk_tokens": {
+      "n": 1532,
+      "min": 30,
+      "max": 8102,
+      "mean": 5974.7,
+      "p05": 1322,
+      "p25": 4907,
+      "p50": 6599,
+      "p75": 7610,
+      "p95": 7981
+    },
+    "train_chunks": 1398,
+    "val_chunks": 134,
+    "train_tokens": 8325829,
+    "val_tokens": 827345,
+    "budget_utilisation": 0.7295
+  },
+  "boundaries": {
+    "chunks_opening_a_chapter": 848,
+    "chunks_opening_a_scene": 43,
+    "chunks_ending_on_a_scene": 1294,
+    "chunks_resuming_a_scene": 238,
+    "pct_ending_on_a_scene": 84.46,
+    "pct_opening_at_a_boundary": 58.16
+  },
+  "oversize": {
+    "records": 138,
+    "by_kind": {
+      "oversize_scene": {
+        "count": 137,
+        "tokens": 2201606,
+        "actions": {
+          "split_at_paragraph_boundaries": 137
+        }
+      },
+      "oversize_paragraph": {
+        "count": 1,
+        "tokens": 8560,
+        "actions": {
+          "excluded": 1
+        }
+      }
+    },
+    "excluded_tokens": 8560,
+    "excluded_fraction": 0.000934,
+    "warn_fraction": 0.005,
+    "stop_fraction": 0.02,
+    "review_required": false,
+    "stop": false
+  },
+  "splits": {
+    "strategy": "book",
+    "val_fraction": 0.1,
+    "val_books": [
+      "fablehaven_and_dragonwatch_4",
+      "fablehaven_and_dragonwatch_5",
+      "five_kingdoms_and_beyonders_2",
+      "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_sea_of_monsters",
+      "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades",
+      "micheal_vey_9"
+    ]
+  },
+  "exclusions": {
+    "patterns": [
+      "wings of fire*",
+      "*wings of fire*",
+      "onyx",
+      "onyx*"
+    ],
+    "matched": []
+  },
+  "provenance": {
+    "raw_root": "data/raw",
+    "manifest": null,
+    "books": [
+      {
+        "book_id": "eragon_eragon__brisingr",
+        "title": "Brisingr",
+        "series": "Eragon",
+        "source_files": [
+          "Eragon/Eragon.epub"
+        ],
+        "chapters": 1,
+        "scenes": 66,
+        "paragraphs": 5886,
+        "chunks": 61,
+        "content_tokens": 343459,
+        "in_val_split": false
+      },
+      {
+        "book_id": "eragon_eragon__eldest",
+        "title": "Eldest",
+        "series": "Eragon",
+        "source_files": [
+          "Eragon/Eragon.epub"
+        ],
+        "chapters": 1,
+        "scenes": 82,
+        "paragraphs": 6487,
+        "chunks": 52,
+        "content_tokens": 307161,
+        "in_val_split": false
+      },
+      {
+        "book_id": "eragon_eragon__eragon",
+        "title": "Eragon",
+        "series": "Eragon",
+        "source_files": [
+          "Eragon/Eragon.epub"
+        ],
+        "chapters": 1,
+        "scenes": 69,
+        "paragraphs": 4265,
+        "chunks": 37,
+        "content_tokens": 214421,
+        "in_val_split": false
+      },
+      {
+        "book_id": "eragon_eragon__inheritance",
+        "title": "Inheritance",
+        "series": "Eragon",
+        "source_files": [
+          "Eragon/Eragon.epub"
+        ],
+        "chapters": 83,
+        "scenes": 92,
+        "paragraphs": 7814,
+        "chunks": 67,
+        "content_tokens": 374118,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_1__fablehaven",
+        "title": "Fablehaven",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/1.epub"
+        ],
+        "chapters": 22,
+        "scenes": 46,
+        "paragraphs": 3240,
+        "chunks": 17,
+        "content_tokens": 102159,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_1__fablehaven_grip_of_the_shadow_plague",
+        "title": "Fablehaven: Grip of the Shadow Plague",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/1.epub"
+        ],
+        "chapters": 26,
+        "scenes": 42,
+        "paragraphs": 3951,
+        "chunks": 25,
+        "content_tokens": 150106,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_1__fablehaven_keys_to_the_demon_prison",
+        "title": "Fablehaven: Keys to the Demon Prison",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/1.epub"
+        ],
+        "chapters": 34,
+        "scenes": 38,
+        "paragraphs": 5328,
+        "chunks": 33,
+        "content_tokens": 189803,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_1__fablehaven_rise_of_the_evening_star",
+        "title": "Fablehaven: Rise of the Evening Star",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/1.epub"
+        ],
+        "chapters": 23,
+        "scenes": 55,
+        "paragraphs": 3663,
+        "chunks": 22,
+        "content_tokens": 137290,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_1__fablehaven_secrets_of_the_dragon_sanctuary",
+        "title": "Fablehaven: Secrets of the Dragon Sanctuary",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/1.epub"
+        ],
+        "chapters": 30,
+        "scenes": 55,
+        "paragraphs": 4466,
+        "chunks": 29,
+        "content_tokens": 167489,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_2",
+        "title": "Dragonwatch",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/2.epub"
+        ],
+        "chapters": 28,
+        "scenes": 28,
+        "paragraphs": 4050,
+        "chunks": 19,
+        "content_tokens": 112765,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_3",
+        "title": "Dragonwatch, Book 2: Wrath of the Dragon King",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/3.mobi"
+        ],
+        "chapters": 40,
+        "scenes": 40,
+        "paragraphs": 4718,
+        "chunks": 20,
+        "content_tokens": 122353,
+        "in_val_split": false
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_4",
+        "title": "Dragonwatch, Book 3: Master of the Phantom Isle",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/4.epub"
+        ],
+        "chapters": 2,
+        "scenes": 2,
+        "paragraphs": 5384,
+        "chunks": 21,
+        "content_tokens": 151282,
+        "in_val_split": true
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_5",
+        "title": "Dragonwatch, vol. 4: Champion of the Titan Games",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/5.epub"
+        ],
+        "chapters": 1,
+        "scenes": 52,
+        "paragraphs": 5778,
+        "chunks": 27,
+        "content_tokens": 160023,
+        "in_val_split": true
+      },
+      {
+        "book_id": "fablehaven_and_dragonwatch_6",
+        "title": "Return of the Dragon Slayers",
+        "series": "Fablehaven and dragonwatch",
+        "source_files": [
+          "Fablehaven and dragonwatch/6.epub"
+        ],
+        "chapters": 1,
+        "scenes": 1,
+        "paragraphs": 6584,
+        "chunks": 24,
+        "content_tokens": 185225,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_1",
+        "title": "Sky Raiders (Five Kingdoms Book 1)",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/1.epub"
+        ],
+        "chapters": 36,
+        "scenes": 37,
+        "paragraphs": 4459,
+        "chunks": 23,
+        "content_tokens": 137134,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_2",
+        "title": "Five Kingdoms 2: Rogue Knight",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/2.epub"
+        ],
+        "chapters": 1,
+        "scenes": 49,
+        "paragraphs": 4812,
+        "chunks": 27,
+        "content_tokens": 152381,
+        "in_val_split": true
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_3",
+        "title": "[Five Kingdoms 03] • Crystal Keepers",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/3.epub"
+        ],
+        "chapters": 1,
+        "scenes": 1,
+        "paragraphs": 5047,
+        "chunks": 20,
+        "content_tokens": 153177,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_4",
+        "title": "[Five Kingdoms 04] • Death Weavers",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/4.epub"
+        ],
+        "chapters": 40,
+        "scenes": 48,
+        "paragraphs": 5502,
+        "chunks": 28,
+        "content_tokens": 157977,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_5",
+        "title": "Time Jumpers (Five Kingdoms Book 5)",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/5.epub"
+        ],
+        "chapters": 38,
+        "scenes": 46,
+        "paragraphs": 5216,
+        "chunks": 23,
+        "content_tokens": 134805,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_brandon_mulls_beyonders_trilogy_mull_brandon_z_library__a_world_without_heroes",
+        "title": "A World Without Heroes",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/Brandon Mulls Beyonders Trilogy (Mull, Brandon) (Z-Library).epub"
+        ],
+        "chapters": 33,
+        "scenes": 67,
+        "paragraphs": 4950,
+        "chunks": 26,
+        "content_tokens": 169369,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_brandon_mulls_beyonders_trilogy_mull_brandon_z_library__chasing_the_prophecy",
+        "title": "Chasing the Prophecy",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/Brandon Mulls Beyonders Trilogy (Mull, Brandon) (Z-Library).epub"
+        ],
+        "chapters": 42,
+        "scenes": 60,
+        "paragraphs": 4537,
+        "chunks": 29,
+        "content_tokens": 187535,
+        "in_val_split": false
+      },
+      {
+        "book_id": "five_kingdoms_and_beyonders_brandon_mulls_beyonders_trilogy_mull_brandon_z_library__seeds_of_rebellion",
+        "title": "Seeds of Rebellion",
+        "series": "five kingdoms and beyonders",
+        "source_files": [
+          "five kingdoms and beyonders/Brandon Mulls Beyonders Trilogy (Mull, Brandon) (Z-Library).epub"
+        ],
+        "chapters": 31,
+        "scenes": 31,
+        "paragraphs": 4972,
+        "chunks": 34,
+        "content_tokens": 178958,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_battle_of_the_labyrinth",
+        "title": "Percy Jackson and the Battle of the Labyrinth",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/Percy Jackson.mobi"
+        ],
+        "chapters": 21,
+        "scenes": 21,
+        "paragraphs": 3777,
+        "chunks": 22,
+        "content_tokens": 118677,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_last_olympian",
+        "title": "Percy Jackson and the Last Olympian",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/Percy Jackson.mobi"
+        ],
+        "chapters": 27,
+        "scenes": 31,
+        "paragraphs": 3874,
+        "chunks": 21,
+        "content_tokens": 123974,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_lightning_thief",
+        "title": "Percy Jackson and the Lightning Thief",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/Percy Jackson.mobi"
+        ],
+        "chapters": 27,
+        "scenes": 37,
+        "paragraphs": 4000,
+        "chunks": 21,
+        "content_tokens": 120259,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_sea_of_monsters",
+        "title": "Percy Jackson and the Sea of Monsters",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/Percy Jackson.mobi"
+        ],
+        "chapters": 22,
+        "scenes": 28,
+        "paragraphs": 2812,
+        "chunks": 14,
+        "content_tokens": 89088,
+        "in_val_split": true
+      },
+      {
+        "book_id": "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_titan_s_curse",
+        "title": "Percy Jackson and the Titan’s Curse",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/Percy Jackson.mobi"
+        ],
+        "chapters": 21,
+        "scenes": 21,
+        "paragraphs": 3421,
+        "chunks": 19,
+        "content_tokens": 100841,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_blood_of_olympus",
+        "title": "Heroes of Olympus: The Blood of Olympus",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/The Heroes of Olympus - The Complete Series.mobi"
+        ],
+        "chapters": 69,
+        "scenes": 69,
+        "paragraphs": 5063,
+        "chunks": 27,
+        "content_tokens": 167917,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades",
+        "title": "Heroes of Olympus: The House of Hades",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/The Heroes of Olympus - The Complete Series.mobi"
+        ],
+        "chapters": 79,
+        "scenes": 79,
+        "paragraphs": 5585,
+        "chunks": 30,
+        "content_tokens": 185353,
+        "in_val_split": true
+      },
+      {
+        "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_lost_hero",
+        "title": "Heroes of Olympus: The Lost Hero",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/The Heroes of Olympus - The Complete Series.mobi"
+        ],
+        "chapters": 65,
+        "scenes": 70,
+        "paragraphs": 4969,
+        "chunks": 28,
+        "content_tokens": 177914,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_mark_of_athena",
+        "title": "Heroes of Olympus: The Mark of Athena",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/The Heroes of Olympus - The Complete Series.mobi"
+        ],
+        "chapters": 53,
+        "scenes": 53,
+        "paragraphs": 5311,
+        "chunks": 33,
+        "content_tokens": 187045,
+        "in_val_split": false
+      },
+      {
+        "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_son_of_neptune",
+        "title": "Heroes of Olympus: The Son of Neptune",
+        "series": "greek and roman mythology",
+        "source_files": [
+          "greek and roman mythology/The Heroes of Olympus - The Complete Series.mobi"
+        ],
+        "chapters": 53,
+        "scenes": 53,
+        "paragraphs": 4647,
+        "chunks": 28,
+        "content_tokens": 166170,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_1",
+        "title": "Harry Potter and the Sorcerer's Stone",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/1.mobi"
+        ],
+        "chapters": 30,
+        "scenes": 46,
+        "paragraphs": 3214,
+        "chunks": 20,
+        "content_tokens": 112431,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_2",
+        "title": "Harry Potter and The Chamber of Secrets",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/2.epub"
+        ],
+        "chapters": 19,
+        "scenes": 20,
+        "paragraphs": 3186,
+        "chunks": 19,
+        "content_tokens": 120377,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_3",
+        "title": "Harry Potter and the Prisoner of Azkaban",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/3.epub"
+        ],
+        "chapters": 31,
+        "scenes": 53,
+        "paragraphs": 4358,
+        "chunks": 29,
+        "content_tokens": 159632,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_4",
+        "title": "Harry Potter - 4 - The Goblet of Fire",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/4.epub"
+        ],
+        "chapters": 38,
+        "scenes": 38,
+        "paragraphs": 6170,
+        "chunks": 51,
+        "content_tokens": 266690,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_5",
+        "title": "Harry Potter 5 - Harry Potter and the Order of the Phoenix",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/5.epub"
+        ],
+        "chapters": 37,
+        "scenes": 37,
+        "paragraphs": 9317,
+        "chunks": 68,
+        "content_tokens": 359298,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_6",
+        "title": "Harry Potter and the Half-Blood Prince",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/6.epub"
+        ],
+        "chapters": 32,
+        "scenes": 32,
+        "paragraphs": 5483,
+        "chunks": 43,
+        "content_tokens": 229558,
+        "in_val_split": false
+      },
+      {
+        "book_id": "harry_potter_harry_potter_and_the_deathly_hallows_book_7_j_k_rowling_2012_2007_pottermore_limited_thorndike_press_4b62cd3d3f4f75aba11ec1625c9a2f54_anna_s_archive",
+        "title": "Harry Potter and the Deathly Hallows",
+        "series": "Harry Potter",
+        "source_files": [
+          "Harry Potter/Harry Potter and the Deathly Hallows (Book 7) -- J_K_ Rowling -- 2012_2007 -- Pottermore Limited_Thorndike Press -- 4b62cd3d3f4f75aba11ec1625c9a2f54 -- Anna’s Archive.mobi"
+        ],
+        "chapters": 19,
+        "scenes": 55,
+        "paragraphs": 6932,
+        "chunks": 53,
+        "content_tokens": 275019,
+        "in_val_split": false
+      },
+      {
+        "book_id": "i_must_betray_you_i_must_betray_you",
+        "title": "I Must Betray You",
+        "series": "I Must Betray You",
+        "source_files": [
+          "I Must Betray You/I Must Betray You.mobi"
+        ],
+        "chapters": 122,
+        "scenes": 134,
+        "paragraphs": 3749,
+        "chunks": 13,
+        "content_tokens": 87550,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_1",
+        "title": "[Michael Vey 01] • The Prisoner of Cell 25",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/1.epub"
+        ],
+        "chapters": 1,
+        "scenes": 52,
+        "paragraphs": 4940,
+        "chunks": 19,
+        "content_tokens": 115005,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_10",
+        "title": "The Colony",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/10.epub"
+        ],
+        "chapters": 57,
+        "scenes": 67,
+        "paragraphs": 4763,
+        "chunks": 19,
+        "content_tokens": 121462,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_2",
+        "title": "[Michael Vey 02] • Rise of the Elgen",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/2.epub"
+        ],
+        "chapters": 1,
+        "scenes": 90,
+        "paragraphs": 4630,
+        "chunks": 19,
+        "content_tokens": 118931,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_3",
+        "title": "Battle of the Ampere",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/3.epub"
+        ],
+        "chapters": 5,
+        "scenes": 50,
+        "paragraphs": 4433,
+        "chunks": 21,
+        "content_tokens": 107009,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_4",
+        "title": "[Michael Vey 04] • Hunt for Jade Dragon",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/4.epub"
+        ],
+        "chapters": 4,
+        "scenes": 40,
+        "paragraphs": 4379,
+        "chunks": 20,
+        "content_tokens": 105203,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_5",
+        "title": "[Michael Vey 05] • Storm of Lightning",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/5.epub"
+        ],
+        "chapters": 6,
+        "scenes": 23,
+        "paragraphs": 3349,
+        "chunks": 16,
+        "content_tokens": 87312,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_6",
+        "title": "Fall of Hades",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/6.epub"
+        ],
+        "chapters": 12,
+        "scenes": 79,
+        "paragraphs": 3808,
+        "chunks": 18,
+        "content_tokens": 101283,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_7",
+        "title": "Michael Vey 7",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/7.epub"
+        ],
+        "chapters": 58,
+        "scenes": 99,
+        "paragraphs": 3733,
+        "chunks": 15,
+        "content_tokens": 100385,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_8",
+        "title": "Michael Vey 8",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/8.epub"
+        ],
+        "chapters": 81,
+        "scenes": 88,
+        "paragraphs": 4890,
+        "chunks": 18,
+        "content_tokens": 115867,
+        "in_val_split": false
+      },
+      {
+        "book_id": "micheal_vey_9",
+        "title": "Michael Vey 9",
+        "series": "micheal vey",
+        "source_files": [
+          "micheal vey/9.epub"
+        ],
+        "chapters": 56,
+        "scenes": 56,
+        "paragraphs": 3594,
+        "chunks": 15,
+        "content_tokens": 89218,
+        "in_val_split": true
+      },
+      {
+        "book_id": "the_false_prince_1",
+        "title": "The False Prince",
+        "series": "the false prince",
+        "source_files": [
+          "the false prince/1.azw3"
+        ],
+        "chapters": 1,
+        "scenes": 1,
+        "paragraphs": 2794,
+        "chunks": 13,
+        "content_tokens": 99991,
+        "in_val_split": false
+      },
+      {
+        "book_id": "the_false_prince_2",
+        "title": "The Runaway King",
+        "series": "the false prince",
+        "source_files": [
+          "the false prince/2.epub"
+        ],
+        "chapters": 1,
+        "scenes": 1,
+        "paragraphs": 2720,
+        "chunks": 13,
+        "content_tokens": 100193,
+        "in_val_split": false
+      },
+      {
+        "book_id": "the_false_prince_3",
+        "title": "The Shadow Throne",
+        "series": "the false prince",
+        "source_files": [
+          "the false prince/3.epub"
+        ],
+        "chapters": 3,
+        "scenes": 3,
+        "paragraphs": 2183,
+        "chunks": 14,
+        "content_tokens": 100360,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_1",
+        "title": "The Unwanteds",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/1.epub"
+        ],
+        "chapters": 49,
+        "scenes": 49,
+        "paragraphs": 2010,
+        "chunks": 15,
+        "content_tokens": 91357,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_2",
+        "title": "[Unwanteds 02] • Island of Silence",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/2.epub"
+        ],
+        "chapters": 1,
+        "scenes": 1,
+        "paragraphs": 2144,
+        "chunks": 12,
+        "content_tokens": 93865,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_3",
+        "title": "Unwanteds 3: Island of Fire",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/3.epub"
+        ],
+        "chapters": 78,
+        "scenes": 79,
+        "paragraphs": 2411,
+        "chunks": 15,
+        "content_tokens": 105737,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_4",
+        "title": "Unwanteds 4: Island of Legends",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/4.epub"
+        ],
+        "chapters": 1,
+        "scenes": 77,
+        "paragraphs": 2794,
+        "chunks": 16,
+        "content_tokens": 112200,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_5",
+        "title": "[Unwanteds 05] • Island of Shipwrecks",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/5.epub"
+        ],
+        "chapters": 65,
+        "scenes": 65,
+        "paragraphs": 2491,
+        "chunks": 15,
+        "content_tokens": 106260,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_6",
+        "title": "Island of Graves",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/6.epub"
+        ],
+        "chapters": 65,
+        "scenes": 65,
+        "paragraphs": 2978,
+        "chunks": 18,
+        "content_tokens": 120935,
+        "in_val_split": false
+      },
+      {
+        "book_id": "unwanteds_7",
+        "title": "[Unwanteds 07] • Island of Dragons",
+        "series": "unwanteds",
+        "source_files": [
+          "unwanteds/7.epub"
+        ],
+        "chapters": 66,
+        "scenes": 66,
+        "paragraphs": 2901,
+        "chunks": 18,
+        "content_tokens": 123818,
+        "in_val_split": false
+      }
+    ]
+  },
+  "errors": [],
+  "elapsed_seconds": 54.4
+}

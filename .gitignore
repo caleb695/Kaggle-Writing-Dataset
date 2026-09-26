@@ -8,6 +8,10 @@ data/*
 *.pdf
 *.safetensors
 
+# Training-ready Kaggle package (no raw books) IS committed.
+!kaggle_dataset/
+!kaggle_dataset/**
+
 # tokenizer blobs
 tekken.json
 tokenizer.json
