@@ -774,10 +774,17 @@ _OMNIBUS_HINT = regex.compile(
     r"e-?book boxed|boxed e-?book)\b",
     regex.IGNORECASE,
 )
-_BOOK_NAV_RE = regex.compile(
-    r"^\s*(?:book|volume|tome)\s+"
+_BOOK_NAV_NUMBER = (
     r"(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
-    r"i{1,3}|iv|v|vi{0,3}|ix|\d{1,2})\b",
+    r"i{1,3}|iv|v|vi{0,3}|ix|\d{1,2})"
+)
+_BOOK_NAV_RE = regex.compile(
+    rf"^\s*(?:book|volume|tome)\s+{_BOOK_NAV_NUMBER}\b",
+    regex.IGNORECASE,
+)
+_BOOK_NAV_TITLE_RE = regex.compile(
+    rf"^\s*(?:book|volume|tome)\s+{_BOOK_NAV_NUMBER}\b"
+    r"\s*(?:[-\u2013\u2014:]\s*)?(?P<title>\S.*?)\s*$",
     regex.IGNORECASE,
 )
 _ISBN13_RE = regex.compile(r"(97[89]\d{10})")
@@ -795,6 +802,14 @@ def _is_furniture_nav_label(label: str) -> bool:
     if s.startswith("about "):
         return True
     return False
+
+
+def _book_nav_title(label: str) -> Optional[str]:
+    """Extract a title embedded after a numbered ``Book N`` NCX label."""
+    match = _BOOK_NAV_TITLE_RE.match(label or "")
+    if not match:
+        return None
+    return clean_heading(match.group("title"))
 
 
 def _read_epub_ncx(path: Path) -> tuple[Optional[str], list[tuple[str, str, int, str]]]:
@@ -952,9 +967,19 @@ def _ncx_novel_groups(
         idx = _doc_index_for_src(documents, src)
         if idx is None:
             continue
-        # "BOOK ONE" / first nested "Fablehaven" -> use the nested title.
-        title = label
-        if _BOOK_NAV_RE.match(label or "") and first_child and not _BOOK_NAV_RE.match(first_child):
+        # Some NCX labels embed the novel title ("Book 1—The Hunger Games");
+        # preserve that instead of mistaking the first nested "Cover" entry for
+        # the book title. When the label is only "Book One", a meaningful first
+        # child such as "Fablehaven" can still supply the title.
+        nav_title = _book_nav_title(label)
+        title = nav_title or label
+        if (
+            nav_title is None
+            and _BOOK_NAV_RE.match(label or "")
+            and first_child
+            and not _BOOK_NAV_RE.match(first_child)
+            and not _is_furniture_nav_label(first_child)
+        ):
             title = first_child
         starts.append((clean_heading(title) or f"Book {len(starts) + 1}", idx))
     if len(starts) < 2:

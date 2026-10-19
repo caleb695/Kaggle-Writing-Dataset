@@ -17,6 +17,7 @@ from fixtures import make_corpus, write_epub
 
 from writing_dataset.extract import (
     _doc_index_for_src,
+    _ncx_novel_groups,
     extract_epub,
     extract_epub_collection,
     extract_file,
@@ -349,6 +350,28 @@ def test_epub_omnibus_can_be_left_unsplit(tmp_path):
     paras = [b.text for b in docs[0].blocks if b.kind == "paragraph"]
     assert any(t.startswith("Alpha") for t in paras)
     assert any(t.startswith("Bravo") for t in paras)
+
+
+def test_numbered_ncx_labels_keep_embedded_titles_not_cover_child():
+    documents = [
+        ("Book1/title.xhtml", ""),
+        ("Book2/title.xhtml", ""),
+        ("Book3/title.xhtml", ""),
+    ]
+    roots = [
+        ("Book 1—The Hunger Games", "Book1/title.xhtml", 7, "Cover"),
+        ("Book Two", "Book2/title.xhtml", 7, "Catching Fire"),
+        ("Book 3—Mockingjay", "Book3/title.xhtml", 7, "Cover"),
+    ]
+
+    groups = _ncx_novel_groups(documents, roots, require_book_label=True)
+
+    assert groups is not None
+    assert [title for title, _docs in groups] == [
+        "The Hunger Games",
+        "Catching Fire",
+        "Mockingjay",
+    ]
 
 
 def test_doc_index_does_not_confuse_same_basename_in_other_folder():
