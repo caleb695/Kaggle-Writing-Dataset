@@ -6,19 +6,19 @@
   "eos_id": 2,
   "pad_id": 11,
   "files": {
-    "train.jsonl": 37332562,
-    "val.jsonl": 3730194,
-    "input_ids.npy": 36625080,
-    "offsets.npy": 36896,
-    "train_offsets.npy": 33680,
-    "val_offsets.npy": 3344,
-    "tokenized_index.jsonl": 301637,
-    "stats.json": 28373,
+    "train.jsonl": 40489276,
+    "val.jsonl": 3208608,
+    "input_ids.npy": 39001548,
+    "offsets.npy": 38816,
+    "train_offsets.npy": 36392,
+    "val_offsets.npy": 2552,
+    "tokenized_index.jsonl": 317559,
+    "stats.json": 31391,
     "tokenizer_info.json": 756,
-    "REPORT.md": 9139,
-    "oversize_blocks.jsonl": 81383
+    "REPORT.md": 9493,
+    "oversize_blocks.jsonl": 91946
   },
-  "train_chunks": 1398,
-  "val_chunks": 134,
-  "training_tokens": 9156238
+  "train_chunks": 1511,
+  "val_chunks": 101,
+  "training_tokens": 9750355
 }

@@ -1,6 +1,6 @@
 {
   "run_name": "ministral3-14b-base-8192",
-  "generated_at_utc": "2026-09-26T17:52:54Z",
+  "generated_at_utc": "2026-10-19T01:23:57Z",
   "model": {
     "name": "Ministral-3-14B-Base-2512",
     "hf_repo": "mistralai/Ministral-3-14B-Base-2512",
@@ -30,52 +30,52 @@
     "content_budget": 8190
   },
   "corpus": {
-    "books_total": 60,
-    "books_included": 60,
+    "books_total": 64,
+    "books_included": 64,
     "books_excluded": 0,
-    "chapters": 1891,
-    "scenes": 2935,
-    "paragraphs": 264922,
-    "words": 6740169
+    "chapters": 1900,
+    "scenes": 2947,
+    "paragraphs": 275232,
+    "words": 7194232
   },
   "dataset": {
-    "chunks": 1532,
-    "content_tokens": 9153174,
-    "boundary_tokens": 3064,
-    "training_tokens_including_boundaries": 9156238,
+    "chunks": 1612,
+    "content_tokens": 9747131,
+    "boundary_tokens": 3224,
+    "training_tokens_including_boundaries": 9750355,
     "chunk_tokens": {
-      "n": 1532,
+      "n": 1612,
       "min": 30,
       "max": 8102,
-      "mean": 5974.7,
-      "p05": 1322,
-      "p25": 4907,
-      "p50": 6599,
-      "p75": 7610,
-      "p95": 7981
+      "mean": 6046.6,
+      "p05": 1348,
+      "p25": 5001,
+      "p50": 6682,
+      "p75": 7727,
+      "p95": 8005
     },
-    "train_chunks": 1398,
-    "val_chunks": 134,
-    "train_tokens": 8325829,
-    "val_tokens": 827345,
-    "budget_utilisation": 0.7295
+    "train_chunks": 1511,
+    "val_chunks": 101,
+    "train_tokens": 9024991,
+    "val_tokens": 722140,
+    "budget_utilisation": 0.7383
   },
   "boundaries": {
-    "chunks_opening_a_chapter": 848,
-    "chunks_opening_a_scene": 43,
-    "chunks_ending_on_a_scene": 1294,
-    "chunks_resuming_a_scene": 238,
-    "pct_ending_on_a_scene": 84.46,
-    "pct_opening_at_a_boundary": 58.16
+    "chunks_opening_a_chapter": 853,
+    "chunks_opening_a_scene": 44,
+    "chunks_ending_on_a_scene": 1304,
+    "chunks_resuming_a_scene": 308,
+    "pct_ending_on_a_scene": 80.89,
+    "pct_opening_at_a_boundary": 55.65
   },
   "oversize": {
-    "records": 138,
+    "records": 148,
     "by_kind": {
       "oversize_scene": {
-        "count": 137,
-        "tokens": 2201606,
+        "count": 145,
+        "tokens": 2804010,
         "actions": {
-          "split_at_paragraph_boundaries": 137
+          "split_at_paragraph_boundaries": 145
         }
       },
       "oversize_paragraph": {
@@ -84,10 +84,17 @@
         "actions": {
           "excluded": 1
         }
+      },
+      "unplaceable_tail": {
+        "count": 2,
+        "tokens": 11,
+        "actions": {
+          "excluded": 2
+        }
       }
     },
-    "excluded_tokens": 8560,
-    "excluded_fraction": 0.000934,
+    "excluded_tokens": 8571,
+    "excluded_fraction": 0.000879,
     "warn_fraction": 0.005,
     "stop_fraction": 0.02,
     "review_required": false,
@@ -98,10 +105,10 @@
     "val_fraction": 0.1,
     "val_books": [
       "fablehaven_and_dragonwatch_4",
-      "fablehaven_and_dragonwatch_5",
-      "five_kingdoms_and_beyonders_2",
       "greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_sea_of_monsters",
-      "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades",
+      "hunger_games_collection__catching_fire",
+      "hunger_games_collection__mockingjay",
+      "hunger_games_collection__the_hunger_games",
       "micheal_vey_9"
     ]
   },
@@ -115,8 +122,8 @@
     "matched": []
   },
   "provenance": {
-    "raw_root": "data/raw",
-    "manifest": null,
+    "raw_root": "mixed: previous data/raw build and repository-root Hunger Games build",
+    "manifest": "configs/hunger_games_manifest.yaml (incremental addition)",
     "books": [
       {
         "book_id": "eragon_eragon__brisingr",
@@ -298,7 +305,7 @@
         "paragraphs": 5778,
         "chunks": 27,
         "content_tokens": 160023,
-        "in_val_split": true
+        "in_val_split": false
       },
       {
         "book_id": "fablehaven_and_dragonwatch_6",
@@ -340,7 +347,7 @@
         "paragraphs": 4812,
         "chunks": 27,
         "content_tokens": 152381,
-        "in_val_split": true
+        "in_val_split": false
       },
       {
         "book_id": "five_kingdoms_and_beyonders_3",
@@ -522,7 +529,7 @@
         "paragraphs": 5585,
         "chunks": 30,
         "content_tokens": 185353,
-        "in_val_split": true
+        "in_val_split": false
       },
       {
         "book_id": "greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_lost_hero",
@@ -663,6 +670,62 @@
         "chunks": 53,
         "content_tokens": 275019,
         "in_val_split": false
+      },
+      {
+        "book_id": "hunger_games_collection__catching_fire",
+        "title": "Catching Fire",
+        "series": "The Hunger Games",
+        "source_files": [
+          "The Hunger Games 4-Book Digital Collection_ The Hunger -- Suzanne Collins -- The Hunger Games, 2020 -- Scholastic Press -- isbn13 9781338715255 -- e7e14d0803c464252fe8b674b6c8da45 -- Anna’s Archive.epub"
+        ],
+        "chapters": 1,
+        "scenes": 2,
+        "paragraphs": 2250,
+        "chunks": 17,
+        "content_tokens": 131958,
+        "in_val_split": true
+      },
+      {
+        "book_id": "hunger_games_collection__mockingjay",
+        "title": "Mockingjay",
+        "series": "The Hunger Games",
+        "source_files": [
+          "The Hunger Games 4-Book Digital Collection_ The Hunger -- Suzanne Collins -- The Hunger Games, 2020 -- Scholastic Press -- isbn13 9781338715255 -- e7e14d0803c464252fe8b674b6c8da45 -- Anna’s Archive.epub"
+        ],
+        "chapters": 1,
+        "scenes": 2,
+        "paragraphs": 2247,
+        "chunks": 18,
+        "content_tokens": 132465,
+        "in_val_split": true
+      },
+      {
+        "book_id": "hunger_games_collection__the_ballad_of_songbirds_and_snakes",
+        "title": "The Ballad of Songbirds and Snakes",
+        "series": "The Hunger Games",
+        "source_files": [
+          "The Hunger Games 4-Book Digital Collection_ The Hunger -- Suzanne Collins -- The Hunger Games, 2020 -- Scholastic Press -- isbn13 9781338715255 -- e7e14d0803c464252fe8b674b6c8da45 -- Anna’s Archive.epub"
+        ],
+        "chapters": 6,
+        "scenes": 6,
+        "paragraphs": 3686,
+        "chunks": 29,
+        "content_tokens": 201405,
+        "in_val_split": false
+      },
+      {
+        "book_id": "hunger_games_collection__the_hunger_games",
+        "title": "The Hunger Games",
+        "series": "The Hunger Games",
+        "source_files": [
+          "The Hunger Games 4-Book Digital Collection_ The Hunger -- Suzanne Collins -- The Hunger Games, 2020 -- Scholastic Press -- isbn13 9781338715255 -- e7e14d0803c464252fe8b674b6c8da45 -- Anna’s Archive.epub"
+        ],
+        "chapters": 1,
+        "scenes": 2,
+        "paragraphs": 2127,
+        "chunks": 16,
+        "content_tokens": 128129,
+        "in_val_split": true
       },
       {
         "book_id": "i_must_betray_you_i_must_betray_you",
@@ -958,8 +1021,23 @@
         "content_tokens": 123818,
         "in_val_split": false
       }
+    ],
+    "incremental_additions": [
+      {
+        "run_name": "hunger-games-4-book-set",
+        "raw_root": ".",
+        "manifest": "configs/hunger_games_manifest.yaml",
+        "books": [
+          "hunger_games_collection__catching_fire",
+          "hunger_games_collection__mockingjay",
+          "hunger_games_collection__the_ballad_of_songbirds_and_snakes",
+          "hunger_games_collection__the_hunger_games"
+        ],
+        "generated_at_utc": "2026-10-19T01:21:43Z",
+        "elapsed_seconds": 3.4
+      }
     ]
   },
   "errors": [],
-  "elapsed_seconds": 54.4
+  "elapsed_seconds": 57.8
 }

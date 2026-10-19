@@ -1,6 +1,6 @@
 # Dataset report — ministral3-14b-base-8192
 
-Generated 2026-09-26T17:52:54Z · build time 54.4s
+Generated 2026-10-19T01:23:57Z · build time 57.8s
 
 ## 1. Target model and sequence budget
 
@@ -21,27 +21,27 @@ Generated 2026-09-26T17:52:54Z · build time 54.4s
 
 | Metric | Value |
 | --- | --- |
-| Books included | 60 |
+| Books included | 64 |
 | Books excluded | 0 |
-| Chapters | 1,891 |
-| Scenes | 2,935 |
-| Paragraphs | 264,922 |
-| Words | 6,740,169 |
+| Chapters | 1,900 |
+| Scenes | 2,947 |
+| Paragraphs | 275,232 |
+| Words | 7,194,232 |
 
 ## 3. Chunking result
 
 | Metric | Value |
 | --- | --- |
-| Chunks | 1,532 |
-| Content tokens | 9,153,174 |
-| Boundary tokens | 3,064 |
-| **Training tokens (content + boundaries)** | **9,156,238** |
-| Train / val chunks | 1,398 / 134 |
-| Train / val tokens | 8,325,829 / 827,345 |
-| Mean chunk tokens | 5974.7 |
-| Chunk token percentiles (5/25/50/75/95) | 1322 / 4907 / 6599 / 7610 / 7981 |
+| Chunks | 1,612 |
+| Content tokens | 9,747,131 |
+| Boundary tokens | 3,224 |
+| **Training tokens (content + boundaries)** | **9,750,355** |
+| Train / val chunks | 1,511 / 101 |
+| Train / val tokens | 9,024,991 / 722,140 |
+| Mean chunk tokens | 6046.6 |
+| Chunk token percentiles (5/25/50/75/95) | 1348 / 5001 / 6682 / 7727 / 8005 |
 | Min / max chunk tokens | 30 / 8102 |
-| Budget utilisation | 73.0% |
+| Budget utilisation | 73.8% |
 
 ## 4. Boundary conformance
 
@@ -49,22 +49,23 @@ How well the chunks line up with the structure the rules care about.
 
 | Check | Value |
 | --- | --- |
-| Chunks opening a chapter (heading attached) | 848 |
-| Chunks opening a scene | 43 |
-| Chunks ending exactly on a scene break | 1,294 (84.46%) |
-| Chunks resuming an oversize scene | 238 |
-| Chunks opening at any boundary | 58.16% |
+| Chunks opening a chapter (heading attached) | 853 |
+| Chunks opening a scene | 44 |
+| Chunks ending exactly on a scene break | 1,304 (80.89%) |
+| Chunks resuming an oversize scene | 308 |
+| Chunks opening at any boundary | 55.65% |
 
 Rules that are structural rather than statistical — never split a paragraph, never split a scene to fill a chunk, never join two books, no duplicated prose, source order preserved — are enforced by construction and re-checked by `assert_budget`, `assert_no_duplicates` and `assert_order` on every build.
 
 ## 5. Oversize blocks
 
-138 record(s). Excluded content: 8,560 tokens (0.0934% of available content).
+148 record(s). Excluded content: 8,571 tokens (0.0879% of available content).
 
 | Kind | Count | Tokens | Actions |
 | --- | --- | --- | --- |
 | `oversize_paragraph` | 1 | 8,560 | excluded=1 |
-| `oversize_scene` | 137 | 2,201,606 | split_at_paragraph_boundaries=137 |
+| `oversize_scene` | 145 | 2,804,010 | split_at_paragraph_boundaries=145 |
+| `unplaceable_tail` | 2 | 11 | excluded=2 |
 
 Review threshold 0.500% · stop threshold 2.000%
 
@@ -80,10 +81,10 @@ Strategy: **book**, validation fraction 10%
 Held-out books (whole books, so no book leaks across the split):
 
 - `fablehaven_and_dragonwatch_4`
-- `fablehaven_and_dragonwatch_5`
-- `five_kingdoms_and_beyonders_2`
 - `greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_sea_of_monsters`
-- `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades`
+- `hunger_games_collection__catching_fire`
+- `hunger_games_collection__mockingjay`
+- `hunger_games_collection__the_hunger_games`
 - `micheal_vey_9`
 
 ## 7. Exclusions
@@ -108,10 +109,10 @@ Nothing matched the exclusion patterns.
 | `fablehaven_and_dragonwatch_2` | 28 | 28 | 4,050 | 19 | 112,765 | train |
 | `fablehaven_and_dragonwatch_3` | 40 | 40 | 4,718 | 20 | 122,353 | train |
 | `fablehaven_and_dragonwatch_4` | 2 | 2 | 5,384 | 21 | 151,282 | val |
-| `fablehaven_and_dragonwatch_5` | 1 | 52 | 5,778 | 27 | 160,023 | val |
+| `fablehaven_and_dragonwatch_5` | 1 | 52 | 5,778 | 27 | 160,023 | train |
 | `fablehaven_and_dragonwatch_6` | 1 | 1 | 6,584 | 24 | 185,225 | train |
 | `five_kingdoms_and_beyonders_1` | 36 | 37 | 4,459 | 23 | 137,134 | train |
-| `five_kingdoms_and_beyonders_2` | 1 | 49 | 4,812 | 27 | 152,381 | val |
+| `five_kingdoms_and_beyonders_2` | 1 | 49 | 4,812 | 27 | 152,381 | train |
 | `five_kingdoms_and_beyonders_3` | 1 | 1 | 5,047 | 20 | 153,177 | train |
 | `five_kingdoms_and_beyonders_4` | 40 | 48 | 5,502 | 28 | 157,977 | train |
 | `five_kingdoms_and_beyonders_5` | 38 | 46 | 5,216 | 23 | 134,805 | train |
@@ -124,7 +125,7 @@ Nothing matched the exclusion patterns.
 | `greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_sea_of_monsters` | 22 | 28 | 2,812 | 14 | 89,088 | val |
 | `greek_and_roman_mythology_percy_jackson__percy_jackson_and_the_titan_s_curse` | 21 | 21 | 3,421 | 19 | 100,841 | train |
 | `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_blood_of_olympus` | 69 | 69 | 5,063 | 27 | 167,917 | train |
-| `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades` | 79 | 79 | 5,585 | 30 | 185,353 | val |
+| `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_house_of_hades` | 79 | 79 | 5,585 | 30 | 185,353 | train |
 | `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_lost_hero` | 65 | 70 | 4,969 | 28 | 177,914 | train |
 | `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_mark_of_athena` | 53 | 53 | 5,311 | 33 | 187,045 | train |
 | `greek_and_roman_mythology_the_heroes_of_olympus_the_complete_series__heroes_of_olympus_the_son_of_neptune` | 53 | 53 | 4,647 | 28 | 166,170 | train |
@@ -135,6 +136,10 @@ Nothing matched the exclusion patterns.
 | `harry_potter_5` | 37 | 37 | 9,317 | 68 | 359,298 | train |
 | `harry_potter_6` | 32 | 32 | 5,483 | 43 | 229,558 | train |
 | `harry_potter_harry_potter_and_the_deathly_hallows_book_7_j_k_rowling_2012_2007_pottermore_limited_thorndike_press_4b62cd3d3f4f75aba11ec1625c9a2f54_anna_s_archive` | 19 | 55 | 6,932 | 53 | 275,019 | train |
+| `hunger_games_collection__catching_fire` | 1 | 2 | 2,250 | 17 | 131,958 | val |
+| `hunger_games_collection__mockingjay` | 1 | 2 | 2,247 | 18 | 132,465 | val |
+| `hunger_games_collection__the_ballad_of_songbirds_and_snakes` | 6 | 6 | 3,686 | 29 | 201,405 | train |
+| `hunger_games_collection__the_hunger_games` | 1 | 2 | 2,127 | 16 | 128,129 | val |
 | `i_must_betray_you_i_must_betray_you` | 122 | 134 | 3,749 | 13 | 87,550 | train |
 | `micheal_vey_1` | 1 | 52 | 4,940 | 19 | 115,005 | train |
 | `micheal_vey_10` | 57 | 67 | 4,763 | 19 | 121,462 | train |

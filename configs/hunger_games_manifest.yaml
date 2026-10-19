@@ -1,0 +1,9 @@
+# The checked-in 4-book EPUB lives at the repository root. Run the builder
+# with --raw-root . when using this manifest.
+books:
+  - id: hunger_games_collection
+    title: "The Hunger Games 4-Book Set"
+    series: "The Hunger Games"
+    group: "hunger_games"
+    sources:
+      - "The Hunger Games 4-Book Digital Collection_ The Hunger -- Suzanne Collins -- The Hunger Games, 2020 -- Scholastic Press -- isbn13 9781338715255 -- e7e14d0803c464252fe8b674b6c8da45 -- Anna’s Archive.epub"

@@ -127,6 +127,24 @@ mixed with another.
 `.pdf` is rejected with a clear message rather than silently mis-parsed — PDF has
 no reliable paragraph structure, so export to DOCX or EPUB first.
 
+The checked-in four-book Hunger Games EPUB is at the repository root rather
+than under `data/raw/`. `configs/hunger_games_manifest.yaml` maps its EPUB table
+of contents into four separate `Book` objects. To rebuild that collection by
+itself:
+
+```bash
+python -m writing_dataset.cli \
+  --config configs/ministral3-14b-base-8192.yaml \
+  --raw-root . \
+  --manifest configs/hunger_games_manifest.yaml \
+  --out-root data/out \
+  --run-name hunger-games-4-book-set
+```
+
+The current [`kaggle_dataset/`](kaggle_dataset/) package includes those four
+books alongside the existing corpus; see its report for the book-level train /
+validation split.
+
 ### Kindle files and omnibuses
 
 `.mobi`/`.azw`/`.azw3` are read natively (`writing_dataset/mobi.py`): the Palm
